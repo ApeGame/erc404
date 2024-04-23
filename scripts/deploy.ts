@@ -2,7 +2,7 @@ import { constants } from 'ethers';
 import { types, task } from "hardhat/config";
 
 
-// hardhat deploy --network bsctestnet --feereceiver 0x20cD8eB93c50BDAc35d6A526f499c0104958e3F6
+// hardhat deploy --name test --symbol TEST --network coq
 task("deploy", "deploy erc404")
   .addParam("name", "name of erc404", "", types.string)
   .addParam("symbol", "symbol of erc404", "", types.string)

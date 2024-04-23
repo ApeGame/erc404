@@ -27,13 +27,32 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    bsctestnet: {
+      url: "https://bsc-testnet-rpc.publicnode.com",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      ethereum: process.env.ETH_API_KEY ?? "",
+      bscTestnet: process.env.BSCSCAN_API_KEY ?? "",
+      coq: process.env.ETH_API_KEY ?? "",
+    },
+    customChains: [
+      {
+        network: "coq",
+        chainId: 12077,
+        urls: {
+          apiURL: "https://testnetscan.ankr.com/api",
+          browserURL: "https://testnetscan.ankr.com",
+        },
+      },
+    ],
   },
 };
 

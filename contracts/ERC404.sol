@@ -29,7 +29,10 @@ abstract contract ERC404 is IERC404, Initializable {
 
     /// @dev Current mint counter which also represents the highest
     ///      minted id, monotonically increasing to ensure accurate ownership
-    uint256 public minted;
+    uint128 public minted;
+
+    /// The maximum minting limit for NFTs.
+    uint128 public mintLimit;
 
     /// @dev Total supply in ERC-20 representation
     uint256 public totalSupply;
@@ -83,12 +86,14 @@ abstract contract ERC404 is IERC404, Initializable {
         string memory name_,
         string memory symbol_,
         uint96 perMax_,
-        uint256 nftUints
+        uint256 nftUints_,
+        uint128 mintLimit_
     ) internal onlyInitializing {
         name = name_;
         symbol = symbol_;
         perMax = perMax_;
-        units = uint160(nftUints * 10**decimals);
+        units = uint160(nftUints_ * 10**decimals);
+        mintLimit = mintLimit_;
 
         // EIP-2612 initialization
         _INITIAL_CHAIN_ID = block.chainid;
@@ -521,6 +526,8 @@ abstract contract ERC404 is IERC404, Initializable {
         address to_,
         uint256 value_
     ) internal virtual {
+        _beforeTokenTransfer(from_, to_, value_);
+
         // Minting is a special case for which we should not check the balance of
         // the sender, and we should increase the total supply.
         if (from_ == address(0)) {
@@ -539,8 +546,26 @@ abstract contract ERC404 is IERC404, Initializable {
         unchecked {
             balanceOf[to_] += value_;
         }
+        _afterTokenTransfer(from_, to_, value_);
 
         emit ERC20Events.Transfer(from_, to_, value_);
+    }
+
+    function _beforeTokenTransfer(
+        address from_,
+        address to_,
+        uint256 value_
+    ) internal virtual {}
+
+    function _afterTokenTransfer(
+        address from_,
+        address to_,
+        uint256 value_
+    ) internal virtual {}
+
+    /// @notice Internal functio for modify mintLimit
+    function _setMintLimit(uint128 limit_) internal virtual {
+        mintLimit = limit_;
     }
 
     /// @notice Consolidated record keeping function for transferring ERC-721s.
@@ -696,6 +721,9 @@ abstract contract ERC404 is IERC404, Initializable {
             // Pop off the end of the queue (FIFO).
             id = _storedERC721Ids.popBack();
         } else {
+            if (minted >= mintLimit) {
+                return;
+            }
             // Otherwise, mint a new token, should not be able to go over the total fractional supply.
             ++minted;
 

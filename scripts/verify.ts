@@ -8,6 +8,7 @@ task("verify-contract", "verify erc404 contract")
     .addParam("uri", "symbol of erc404", "", types.string)
     .addParam("permax", "the maximum holding limit of NFTs for a address.", 1, types.int)
     .addParam("nftuint", "NFT's smallest unit", 10000, types.int)
+    .addParam("mintlimit", "mint nft limit", 10000, types.int)
     .addParam("staketoken", "stake token address", constants.AddressZero, types.string)
     .addParam("ratio", "How many ERC404 tokens can be exchanged for one stake token", 1, types.float)
     .setAction(async (taskArgs, hre) => {

@@ -9,6 +9,7 @@ task("deploy", "deploy erc404")
   .addParam("uri", "symbol of erc404", "", types.string)
   .addParam("permax", "the maximum holding limit of NFTs for a address.", 1, types.int)
   .addParam("nftuint", "NFT's smallest unit", 10000, types.int)
+  .addParam("mintlimit", "mint nft limit", 10000, types.int)
   .addParam("staketoken", "stake token address", constants.AddressZero, types.string)
   .addParam("ratio", "How many ERC404 tokens can be exchanged for one stake token", 1, types.float)
   .setAction(async (taskArgs, hre) => {
@@ -17,6 +18,7 @@ task("deploy", "deploy erc404")
     const uri: string = taskArgs.uri;
     const permax: number = taskArgs.permax;
     const nftuint: number = taskArgs.nftuint;
+    const mintlimit: number = taskArgs.mintlimit;
     const staketoken: string = taskArgs.staketoken;
     const ratio: number = taskArgs.ratio;
 
@@ -30,7 +32,7 @@ task("deploy", "deploy erc404")
 
     const ERC404StakeProxy = await hre.upgrades.deployProxy(
       ERC404StakeFactory,
-      [name, symbol, uri, permax, nftuint, staketoken, ratio * 10000],
+      [name, symbol, uri, permax, nftuint, mintlimit, staketoken, ratio * 10000],
       {
         initializer: "initialize",
       }
